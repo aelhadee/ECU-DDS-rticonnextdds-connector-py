@@ -1,0 +1,22 @@
+<qos_profile name="MyBaseProfile">
+ <participant_qos>
+ <discovery>
+ <initial_peers>
+ <element>192.168.1.1</element>
+1. The concepts of derived and base QoS are described in QoS Profile Inheritance (Section 17.9.2).
+Configuring QoS with XML
+17-11
+ <element>192.168.1.2</element>
+ </initial_peers>
+ </discovery>
+ </participant>
+</qos_profile>
+<qos_profile name="MyDerivedProfile" base_name="MyBaseProfile">
+ <participant_qos>
+ <discovery>
+ <initial_peers>
+ <element>192.168.1.3</element>
+ </initial_peers>
+ </discovery>
+ </participant>
+</qos_profile>
