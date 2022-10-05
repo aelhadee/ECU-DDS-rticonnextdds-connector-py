@@ -1,0 +1,3 @@
+https://community.rti.com/static/documentation/connector/current/api/python/getting_started.html#installing-rti-connector-for-python
+
+pip install rticonnextdds_connector
