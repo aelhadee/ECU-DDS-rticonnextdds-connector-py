@@ -25,12 +25,8 @@ This code contains trade secrets of Real-Time Innovations, Inc.
                 <property>
                     <value>
                         <element>
-                            <name>dds.transport.UDPv4.builtin.parent.deny_interfaces_list</name>
-                            <value>10.10.1.35</value>
-                        </element>
-                        <element>
                             <name>dds.transport.UDPv4.builtin.parent.allow_interfaces_list</name>
-                            <value>10.10.1.*,192.168.10.*</value>
+                            <value>192.168.10.*</value>
                         </element>
                     </value>
                 </property>
@@ -41,7 +37,9 @@ This code contains trade secrets of Real-Time Innovations, Inc.
     <!-- types -->
     <types>
         <struct name="ShapeType" extensibility="extensible">
-            <member name="color" stringMaxLength="8000" type="string" key="true"/>
+            <member name="can" stringMaxLength="9000" type="string" key="False"/>
+            <member name="lid" stringMaxLength="9000" type="string" key="False"/>
+            <member name="cam" stringMaxLength="12000" type="string" key="False"/>
             <member name="x" type="long"/>
             <member name="y" type="long"/>
             <member name="shapesize" type="long"/>
@@ -60,65 +58,107 @@ This code contains trade secrets of Real-Time Innovations, Inc.
 
     <!-- Domain Library -->
     <domain_library name="MyDomainLibrary">
-        <domain name="MyDomain" domain_id="0">
+        <domain name="MyDomain1" domain_id="1">
             <register_type name="ShapeType" type_ref="ShapeType" />
-            <topic name="Square" register_type_ref="ShapeType"/>
-            <topic name="Circle" register_type_ref="ShapeType"/>
+            <topic name="candata" register_type_ref="ShapeType"/>
+            <!-- <topic name="lidar" register_type_ref="ShapeType"/>
+            <topic name="camf" register_type_ref="ShapeType"/> -->
+        </domain>
+        <domain name="MyDomain2" domain_id="2">
+            <register_type name="ShapeType" type_ref="ShapeType" />
+            <topic name="lidar" register_type_ref="ShapeType"/>
+        </domain>
+        <domain name="MyDomain3" domain_id="3">
+            <register_type name="ShapeType" type_ref="ShapeType" />
+            <topic name="camf" register_type_ref="ShapeType"/>
         </domain>
     </domain_library>
 
     <!-- Participant library -->
     <domain_participant_library name="MyParticipantLibrary">
-        <domain_participant name="MyPubParticipant" domain_ref="MyDomainLibrary::MyDomain">
+    
+    <!-- SQUAR ==============================================================================-->
+        <domain_participant name="MyPubParticipant" domain_ref="MyDomainLibrary::MyDomain1">
             <publisher name="MyPublisher">
-                <data_writer name="MySquareWriter" topic_ref="Square" />
+                <data_writer name="CANWriter" topic_ref="candata" />
             </publisher>
         </domain_participant>
 
         <!-- We use separate participants because we run the writer and the reader
             on different applications, and wouldn't want to create the reader
             in writer.py, or the writer in reader.py -->
-        <domain_participant name="MySubParticipant" domain_ref="MyDomainLibrary::MyDomain">
+        <domain_participant name="MySubParticipant" domain_ref="MyDomainLibrary::MyDomain1">
             <subscriber name="MySubscriber">
-                <data_reader name="MySquareReader" topic_ref="Square" />
+                <data_reader name="CANReader" topic_ref="candata" />
             </subscriber>
         </domain_participant>
 
         <!-- You can also define the reader and writer inside the same
             connector instance if you plan to use both in the same application.
         -->
-        <domain_participant name="MyParticipant" domain_ref="MyDomainLibrary::MyDomain">
+        <domain_participant name="MyParticipant" domain_ref="MyDomainLibrary::MyDomain1">
             <publisher name="MyPublisher">
-                <data_writer name="MySquareWriter" topic_ref="Square" />
+                <data_writer name="CANWriter" topic_ref="candata" />
             </publisher>
             <subscriber name="MySubscriber">
-                <!-- Uncomment this if you don't want the Input to start receiving
-                    data before you call Connector.get_input()
-                -->
-                <!--
-                <subscriber_qos>
-                    <entity_factory>
-                        <autoenable_created_entities>false</autoenable_created_entities>
-                    </entity_factory>
-                </subscriber_qos>
-                -->
-                <data_reader name="MySquareReader" topic_ref="Square" />
+                <data_reader name="CANReader" topic_ref="candata" />
             </subscriber>
         </domain_participant>
-
-        <!-- The transform.py script reads Squares and writes Circles -->
-        <domain_participant name="TransformationParticipant" domain_ref="MyDomainLibrary::MyDomain">
-            <subscriber name="MySubscriber">
-                <data_reader name="MySquareReader" topic_ref="Square" />
-            </subscriber>
-            <publisher name="MyPublisher">
-                <data_writer name="MyCircleWriter" topic_ref="Circle" />
+        
+    <!-- CIRCLE ==============================================================================-->
+        <domain_participant name="MyPubParticipant2" domain_ref="MyDomainLibrary::MyDomain2">
+            <publisher name="MyPublisher2">
+                <data_writer name="LiDARWriter" topic_ref="lidar" />
             </publisher>
         </domain_participant>
 
-        <domain_participant name="CircleSubParticipant" domain_ref="MyDomainLibrary::MyDomain">
-            <subscriber name="MySubscriber">
-                <data_reader name="MyCircleReader" topic_ref="Circle" />
+        <!-- We use separate participants because we run the writer and the reader
+            on different applications, and wouldn't want to create the reader
+            in writer.py, or the writer in reader.py -->
+        <domain_participant name="MySubParticipant2" domain_ref="MyDomainLibrary::MyDomain2">
+            <subscriber name="MySubscriber2">
+                <data_reader name="LiDARReader" topic_ref="lidar" />
+            </subscriber>
+        </domain_participant>
+
+        <!-- You can also define the reader and writer inside the same
+            connector instance if you plan to use both in the same application.
+        -->
+        <domain_participant name="MyParticipant2" domain_ref="MyDomainLibrary::MyDomain2">
+            <publisher name="MyPublisher2">
+                <data_writer name="LiDARWriter" topic_ref="lidar" />
+            </publisher>
+            <subscriber name="MySubscriber2">
+                <data_reader name="LiDARReader" topic_ref="lidar" />
+            </subscriber>
+        </domain_participant>
+
+
+    <!-- TRI ==============================================================================-->
+        <domain_participant name="MyPubParticipant3" domain_ref="MyDomainLibrary::MyDomain3">
+            <publisher name="MyPublisher3">
+                <data_writer name="CamWriter" topic_ref="camf" />
+            </publisher>
+        </domain_participant>
+
+        <!-- We use separate participants because we run the writer and the reader
+            on different applications, and wouldn't want to create the reader
+            in writer.py, or the writer in reader.py -->
+        <domain_participant name="MySubParticipant3" domain_ref="MyDomainLibrary::MyDomain3">
+            <subscriber name="MySubscriber3">
+                <data_reader name="CamReader" topic_ref="camf" />
+            </subscriber>
+        </domain_participant>
+
+        <!-- You can also define the reader and writer inside the same
+            connector instance if you plan to use both in the same application.
+        -->
+        <domain_participant name="MyParticipant3" domain_ref="MyDomainLibrary::MyDomain3">
+            <publisher name="MyPublisher3">
+                <data_writer name="CamWriter" topic_ref="camf" />
+            </publisher>
+            <subscriber name="MySubscriber3">
+                <data_reader name="CamReader" topic_ref="camf" />
             </subscriber>
         </domain_participant>
     </domain_participant_library>
