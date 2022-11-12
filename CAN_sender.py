@@ -5,7 +5,8 @@
 # must display this notice unaltered.                                         #
 # This code contains trade secrets of Real-Time Innovations, Inc.             #
 ###############################################################################
-
+import random
+import string
 from time import sleep
 import os
 # Updating the system path is not required if you have pip-installed
@@ -21,19 +22,20 @@ with rti.open_connector(
         config_name="MyParticipantLibrary::MyPubParticipant",
         url=file_path + "/../ShapeExample.xml") as connector:
 
-    output = connector.get_output("MyPublisher::MySquareWriter")
+    output = connector.get_output("MyPublisher::CANWriter")
 
     print("Waiting for subscriptions...")
     output.wait_for_subscriptions()
 
     print("Writing...")
-    for i in range(1, 100000):
+   
        
-      
-        output.instance.set_string('color',str(os.urandom(160)))
+    while True:
+        string_data = ''.join(random.choice(string.ascii_lowercase) for i in range(160))
+        output.instance.set_string('can',string_data)
         output.write()
 
-        sleep(5 / 1000) # Write at a rate of one sample every 0.5 seconds, for ex.
+        sleep(8 / 1000) # Write at a rate of one sample every 0.5 seconds, for ex.
 
     print("Exiting...")
     output.wait() # Wait for all subscriptions to receive the data before exiting
