@@ -9,6 +9,9 @@ import random
 import string
 from time import sleep
 import os
+import cv2
+import imutils
+
 # Updating the system path is not required if you have pip-installed
 # rticonnextdds-connector
 from sys import path as sys_path
@@ -17,6 +20,10 @@ file_path = os_path.dirname(os_path.realpath(__file__))
 sys_path.append(file_path + "/../../../")
 
 import rticonnextdds_connector as rti
+vid_obj = cv2.VideoCapture(4)
+# 0 - colored webcam
+# 2 - grayscale 
+# 4 & 5 - USB webcam 
 
 with rti.open_connector(
         config_name="MyParticipantLibrary::MyPubParticipant3",
@@ -29,8 +36,14 @@ with rti.open_connector(
 
     print("Writing...")
     while True:
-       
-      
+        ret, frame = vid_obj.read()
+
+        # frame = imutils.resize(frame, width=449)
+        cv2.imshow("Transmitting...", frame)
+        e, tx_img = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY,70])  # encoding each frame into an image
+        img_bytes = tx_img.tobytes()  # you can also try pickle
+
+        
         string_data = ''.join(random.choice(string.ascii_lowercase) for i in range(8000))
         output.instance.set_string('cam','Start'+ string_data)
  
