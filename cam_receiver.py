@@ -43,10 +43,10 @@ with rti.open_connector(
             data = sample.get_dictionary()
             # Or you can access the field individually
             cam_data = sample.get_string("cam")
-            print(len(cam_data))
+#            print(len(cam_data))
             dt_data_received.append((time.time() - start_time_data_received) * 1000)
             start_time_data_received = time.time()
-            if (time.time() - start_time) >= (1 * 60):
+            if (time.time() - start_time) >= (10 * 60):
                 print(dt_data_received)
                 logfilename_tcp_rx = "cam_rx_dt_" + str(time.time_ns()) + ".log"
                 with open(logfilename_tcp_rx, "a") as log1:
@@ -78,7 +78,6 @@ with rti.open_connector(
                 #print(((MB / 1000000) * 8) / (40 * 60), 'Mbps')
                 
                 time.sleep(60 * 60)
-
 
 
 
