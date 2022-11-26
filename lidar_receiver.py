@@ -26,9 +26,9 @@ MB = []
 import pandas as pd
 import matplotlib.pyplot as plt
 with rti.open_connector(
-        config_name="MyParticipantLibrary::MySubParticipant3",
-        url=file_path + "/../ShapeExample.xml") as connector:
-    input = connector.get_input("MySubscriber3::CamReader")
+        config_name="MyParticipantLibrary::MySubParticipant2",
+        url=file_path + "/../ShapeExample_TCP.xml") as connector:
+    input = connector.get_input("MySubscriber2::LiDARReader")
 
     print("Waiting for publications...")
     input.wait_for_publications()  # wait for at least one matching publication
@@ -40,17 +40,20 @@ with rti.open_connector(
         input.take()
         for sample in input.samples.valid_data_iter:
             # You can get all the fields in a get_dictionary()
-            data = sample.get_dictionary()
+            #data = sample.get_dictionary()
             # Or you can access the field individually
-            cam_data = sample.get_string("cam")
-#            print(len(cam_data))
+            lidar = sample.get_string("lid")
+#            print(" lidar: " + repr(color))
+#            print(len(lidar), time.time())
+#            print(lidar[0:20])
+#            lidar = 0
             dt_data_received.append((time.time() - start_time_data_received) * 1000)
             start_time_data_received = time.time()
             if (time.time() - start_time) >= (10 * 60):
                 print(dt_data_received)
-                logfilename_tcp_rx = "cam_rx_dt_" + str(time.time_ns()) + ".log"
+                logfilename_tcp_rx = "lid_rx_dt_" + str(time.time_ns()) + ".log"
                 with open(logfilename_tcp_rx, "a") as log1:
-                    log1.write("cam_RX_Delta_time" + "\n")
+                    log1.write("lid_RX_Delta_time" + "\n")
                     for ii in range(1, int(len(dt_data_received))):
                         log1.write(str(dt_data_received[ii]) + "\n")
                     log1.close()
@@ -60,23 +63,23 @@ with rti.open_connector(
                 plt.subplot(1, 2, 1)
                 plt.scatter(frames_plt, dt_data_received[5:])
                 plt.xlabel('DDS Packet Number (in thousands)')
-                plt.ylabel('Delta time (in ms): Received Cam bytes over DDS')
+                plt.ylabel('Delta time (in ms): Received LiDAR bytes over DDS')
 
                 plt.subplot(1, 2, 2)
                 plt.boxplot(dt_data_received[5:])
-                plt.savefig("cam_dt_data_tx_box_" + str(time.time_ns()) + ".png")
+                plt.savefig("lid_dt_data_tx_box_" + str(time.time_ns()) + ".png")
                 print("Data RX Ended...going to sleep")
                 dt_data_received_pd = pd.DataFrame(dt_data_received[1:])
-                logfilename_lidar_rx_summ = "cam_rx_dt_" + str(time.time_ns()) + ".log"
+                logfilename_lidar_rx_summ = "summ_can_rx_dt_" + str(time.time_ns()) + ".log"
                 with open(logfilename_lidar_rx_summ, "a") as log2:
-                    log2.write("cam_RX_dt_summary" + "\n")
-                    log2.write(str(dt_data_received_pd) + "\n")
+                    log2.write("lid_RX_dt_summary" + "\n")
+                    log2.write(str(dt_data_received_pd.describe()) + "\n")
                     log2.close()
                 print(dt_data_received_pd.describe())
                 print(MB, 'bytes')
                 #print(MB / 1000000, 'MB')
                 #print(((MB / 1000000) * 8) / (40 * 60), 'Mbps')
-                
+
                 time.sleep(60 * 60)
 
 
